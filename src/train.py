@@ -17,8 +17,9 @@ def train_model(tokenizer_file, tokenized_dataset):
     tokenizer.mask_token = "[MASK]"
     tokenizer.pad_token = "[PAD]"
     tokenizer.cls_token = "[CLS]"
+    tokenizer.unk_token = "[UNK]"
 
-    config = tr.BertConfig(vocab_size = 16_384)
+    config = tr.BertConfig(vocab_size = tokenizer.vocab_size)
     model = tr.BertForMaskedLM(config = config)
 
     data_collator = tr.DataCollatorForLanguageModeling(
@@ -29,12 +30,13 @@ def train_model(tokenizer_file, tokenized_dataset):
     training_args = tr.TrainingArguments(
         output_dir = "./training_data",
         overwrite_output_dir = True,
-        num_train_epochs = 1,
-        save_steps = 10_000,
+        num_train_epochs = 5,
+        save_steps = 500,
+        logging_steps=100,
         save_total_limit = 2,
         prediction_loss_only = True,
         remove_unused_columns = True,
-        per_device_train_batch_size = 10,
+        per_device_train_batch_size = 8,
         learning_rate = 1e-4
     )
     trainer = tr.Trainer(
